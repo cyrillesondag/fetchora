@@ -1,0 +1,82 @@
+{
+  "planPath": "docs/superpowers/plans/2026-05-21-android-xdownloader.md",
+  "tasks": [
+    {
+      "id": 9,
+      "subject": "Task 1: Project Setup & Build Configuration",
+      "status": "pending",
+      "description": "**Goal:** Create the Android project skeleton with all dependencies correctly wired.\n\n**Files:**\n- Create: `gradle/libs.versions.toml`\n- Modify: `build.gradle.kts` (root)\n- Modify: `app/build.gradle.kts`\n- Create: `app/src/main/java/com/cyrillesondag/xdownloader/XDownloaderApp.kt`\n\n**Verify:** `./gradlew assembleDebug` → `BUILD SUCCESSFUL`\n\n```json:metadata\n{\"files\": [\"gradle/libs.versions.toml\", \"build.gradle.kts\", \"app/build.gradle.kts\"], \"verifyCommand\": \"./gradlew assembleDebug\", \"acceptanceCriteria\": [\"assembleDebug succeeds\", \"all dependencies resolve\", \"KSP runs\"]}\n```"
+    },
+    {
+      "id": 10,
+      "subject": "Task 2: Quality Parser Utility",
+      "status": "pending",
+      "blockedBy": [9],
+      "description": "**Goal:** Pure function extracting quality label from Twitter video URLs.\n\n**Files:**\n- Create: `app/src/main/java/com/cyrillesondag/xdownloader/util/QualityParser.kt`\n- Create: `app/src/test/java/com/cyrillesondag/xdownloader/util/QualityParserTest.kt`\n\n**Verify:** `./gradlew test --tests \"*.QualityParserTest\"` → `BUILD SUCCESSFUL`\n\n```json:metadata\n{\"files\": [\"app/src/main/java/com/cyrillesondag/xdownloader/util/QualityParser.kt\"], \"verifyCommand\": \"./gradlew test --tests \\\"*.QualityParserTest\\\"\", \"acceptanceCriteria\": [\"landscape URL → height as quality\", \"portrait URL → min dimension\", \"no-resolution URL → fallback\"]}\n```"
+    },
+    {
+      "id": 11,
+      "subject": "Task 3: Cobalt API Client",
+      "status": "pending",
+      "blockedBy": [9],
+      "description": "**Goal:** Retrofit interface + models + CobaltRepository covering all Cobalt response types.\n\n**Files:**\n- Create: `app/src/main/java/com/cyrillesondag/xdownloader/data/remote/model/CobaltRequest.kt`\n- Create: `app/src/main/java/com/cyrillesondag/xdownloader/data/remote/model/CobaltResponse.kt`\n- Create: `app/src/main/java/com/cyrillesondag/xdownloader/data/remote/CobaltApi.kt`\n- Create: `app/src/main/java/com/cyrillesondag/xdownloader/data/remote/CobaltRepository.kt`\n- Create: `app/src/test/java/com/cyrillesondag/xdownloader/data/remote/CobaltRepositoryTest.kt`\n\n**Verify:** `./gradlew test --tests \"*.CobaltRepositoryTest\"` → `BUILD SUCCESSFUL`\n\n```json:metadata\n{\"files\": [\"app/src/main/java/com/cyrillesondag/xdownloader/data/remote/CobaltRepository.kt\"], \"verifyCommand\": \"./gradlew test --tests \\\"*.CobaltRepositoryTest\\\"\", \"acceptanceCriteria\": [\"picker → multiple VideoVariant\", \"stream → single VideoVariant\", \"error → Result.failure\", \"network error → Result.failure\"]}\n```"
+    },
+    {
+      "id": 12,
+      "subject": "Task 4: Room Database",
+      "status": "pending",
+      "blockedBy": [9],
+      "description": "**Goal:** DownloadEntity, DownloadDao, AppDatabase with in-memory Room tests.\n\n**Files:**\n- Create: `app/src/main/java/com/cyrillesondag/xdownloader/data/local/db/DownloadEntity.kt`\n- Create: `app/src/main/java/com/cyrillesondag/xdownloader/data/local/db/DownloadDao.kt`\n- Create: `app/src/main/java/com/cyrillesondag/xdownloader/data/local/db/AppDatabase.kt`\n- Create: `app/src/test/java/com/cyrillesondag/xdownloader/data/local/DownloadDaoTest.kt`\n\n**Verify:** `./gradlew test --tests \"*.DownloadDaoTest\"` → `BUILD SUCCESSFUL`\n\n```json:metadata\n{\"files\": [\"app/src/main/java/com/cyrillesondag/xdownloader/data/local/db/DownloadEntity.kt\", \"app/src/main/java/com/cyrillesondag/xdownloader/data/local/db/DownloadDao.kt\", \"app/src/main/java/com/cyrillesondag/xdownloader/data/local/db/AppDatabase.kt\"], \"verifyCommand\": \"./gradlew test --tests \\\"*.DownloadDaoTest\\\"\", \"acceptanceCriteria\": [\"insert and retrieve\", \"update status\", \"flowAll emits\", \"delete removes row\"]}\n```"
+    },
+    {
+      "id": 13,
+      "subject": "Task 5: Settings DataStore",
+      "status": "pending",
+      "blockedBy": [9],
+      "description": "**Goal:** SettingsDataStore persists folder URI and Cobalt URL with defaults.\n\n**Files:**\n- Create: `app/src/main/java/com/cyrillesondag/xdownloader/data/local/datastore/SettingsDataStore.kt`\n- Create: `app/src/test/java/com/cyrillesondag/xdownloader/data/local/SettingsDataStoreTest.kt`\n\n**Verify:** `./gradlew test --tests \"*.SettingsDataStoreTest\"` → `BUILD SUCCESSFUL`\n\n```json:metadata\n{\"files\": [\"app/src/main/java/com/cyrillesondag/xdownloader/data/local/datastore/SettingsDataStore.kt\"], \"verifyCommand\": \"./gradlew test --tests \\\"*.SettingsDataStoreTest\\\"\", \"acceptanceCriteria\": [\"cobaltUrl default\", \"folderUri default null\", \"blank URL resets\", \"saved values retrieved\"]}\n```"
+    },
+    {
+      "id": 14,
+      "subject": "Task 6: Notification Helper",
+      "status": "pending",
+      "blockedBy": [9],
+      "description": "**Goal:** NotificationHelper builds progress/success/failure notifications.\n\n**Files:**\n- Create: `app/src/main/java/com/cyrillesondag/xdownloader/util/NotificationHelper.kt`\n\n**Verify:** `./gradlew assembleDebug` → `BUILD SUCCESSFUL`\n\n```json:metadata\n{\"files\": [\"app/src/main/java/com/cyrillesondag/xdownloader/util/NotificationHelper.kt\"], \"verifyCommand\": \"./gradlew assembleDebug\", \"acceptanceCriteria\": [\"channel created\", \"progress notification\", \"success notification\", \"failure notification\"]}\n```"
+    },
+    {
+      "id": 15,
+      "subject": "Task 7: Download Worker",
+      "status": "pending",
+      "blockedBy": [11, 12, 13, 14],
+      "description": "**Goal:** DownloadWorker inserts Room row, downloads via OkHttp, updates status.\n\n**Files:**\n- Create: `app/src/main/java/com/cyrillesondag/xdownloader/worker/DownloadWorker.kt`\n- Create: `app/src/test/java/com/cyrillesondag/xdownloader/worker/DownloadWorkerTest.kt`\n\n**Verify:** `./gradlew test --tests \"*.DownloadWorkerTest\"` → `BUILD SUCCESSFUL`\n\n```json:metadata\n{\"files\": [\"app/src/main/java/com/cyrillesondag/xdownloader/worker/DownloadWorker.kt\"], \"verifyCommand\": \"./gradlew test --tests \\\"*.DownloadWorkerTest\\\"\", \"acceptanceCriteria\": [\"inserts DOWNLOADING row\", \"updates COMPLETED on success\", \"retry on 500\", \"FAILED on error\"]}\n```"
+    },
+    {
+      "id": 16,
+      "subject": "Task 8: Dependency Injection Modules",
+      "status": "pending",
+      "blockedBy": [11, 12, 13, 14, 15],
+      "description": "**Goal:** Wire all Hilt modules (Network, Database, App, Worker).\n\n**Files:**\n- Create: `app/src/main/java/com/cyrillesondag/xdownloader/di/NetworkModule.kt`\n- Create: `app/src/main/java/com/cyrillesondag/xdownloader/di/DatabaseModule.kt`\n- Create: `app/src/main/java/com/cyrillesondag/xdownloader/di/AppModule.kt`\n- Create: `app/src/main/java/com/cyrillesondag/xdownloader/di/WorkerModule.kt`\n\n**Verify:** `./gradlew assembleDebug` → `BUILD SUCCESSFUL`\n\n```json:metadata\n{\"files\": [\"app/src/main/java/com/cyrillesondag/xdownloader/di/\"], \"verifyCommand\": \"./gradlew assembleDebug\", \"acceptanceCriteria\": [\"assembleDebug succeeds\", \"no Hilt MissingBinding errors\"]}\n```"
+    },
+    {
+      "id": 17,
+      "subject": "Task 9: Share UI — BottomSheet + ViewModel",
+      "status": "pending",
+      "blockedBy": [16],
+      "description": "**Goal:** ShareReceiverActivity + ShareViewModel + QualityBottomSheet.\n\n**Files:**\n- Create: `app/src/main/java/com/cyrillesondag/xdownloader/ui/share/ShareViewModel.kt`\n- Create: `app/src/main/java/com/cyrillesondag/xdownloader/ui/share/QualityBottomSheet.kt`\n- Create: `app/src/main/java/com/cyrillesondag/xdownloader/ui/share/ShareReceiverActivity.kt`\n- Create: `app/src/test/java/com/cyrillesondag/xdownloader/ui/share/ShareViewModelTest.kt`\n\n**Verify:** `./gradlew test --tests \"*.ShareViewModelTest\"` → `BUILD SUCCESSFUL`\n\n```json:metadata\n{\"files\": [\"app/src/main/java/com/cyrillesondag/xdownloader/ui/share/\"], \"verifyCommand\": \"./gradlew test --tests \\\"*.ShareViewModelTest\\\"\", \"acceptanceCriteria\": [\"loadVariants Loaded on success\", \"loadVariants Error on failure\", \"download enqueues WorkManager\"]}\n```"
+    },
+    {
+      "id": 18,
+      "subject": "Task 10: Main UI — History & Settings",
+      "status": "pending",
+      "blockedBy": [16],
+      "description": "**Goal:** MainActivity with History and Settings tabs.\n\n**Files:**\n- Create: `app/src/main/java/com/cyrillesondag/xdownloader/ui/theme/Theme.kt`\n- Create: `app/src/main/java/com/cyrillesondag/xdownloader/ui/main/history/HistoryViewModel.kt`\n- Create: `app/src/main/java/com/cyrillesondag/xdownloader/ui/main/history/HistoryScreen.kt`\n- Create: `app/src/main/java/com/cyrillesondag/xdownloader/ui/main/settings/SettingsViewModel.kt`\n- Create: `app/src/main/java/com/cyrillesondag/xdownloader/ui/main/settings/SettingsScreen.kt`\n- Create: `app/src/main/java/com/cyrillesondag/xdownloader/ui/main/MainActivity.kt`\n\n**Verify:** `./gradlew assembleDebug` → `BUILD SUCCESSFUL`\n\n```json:metadata\n{\"files\": [\"app/src/main/java/com/cyrillesondag/xdownloader/ui/main/\"], \"verifyCommand\": \"./gradlew assembleDebug\", \"acceptanceCriteria\": [\"History shows download list\", \"Settings persists folder and URL\"]}\n```"
+    },
+    {
+      "id": 19,
+      "subject": "Task 11: AndroidManifest & Final Integration",
+      "status": "pending",
+      "blockedBy": [17, 18],
+      "description": "**Goal:** AndroidManifest with share intent filter, permissions, end-to-end smoke test.\n\n**Files:**\n- Modify: `app/src/main/AndroidManifest.xml`\n- Modify: `app/src/main/res/values/themes.xml`\n\n**Verify:** Install on device → share X video tweet → download completes\n\n```json:metadata\n{\"files\": [\"app/src/main/AndroidManifest.xml\"], \"verifyCommand\": \"./gradlew installDebug\", \"acceptanceCriteria\": [\"share intent shows app\", \"BottomSheet with quality options\", \"download completes\", \"video saved to folder\"]}\n```"
+    }
+  ],
+  "lastUpdated": "2026-05-21T00:00:00Z"
+}
