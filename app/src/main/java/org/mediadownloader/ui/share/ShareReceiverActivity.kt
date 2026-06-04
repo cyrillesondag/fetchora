@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import org.mediadownloader.ui.theme.XDownloaderTheme
@@ -36,11 +37,15 @@ class ShareReceiverActivity : ComponentActivity() {
 
         setContent {
             XDownloaderTheme {
+                LaunchedEffect(Unit) {
+                    viewModel.finishEvents.collect { finish() }
+                }
+
                 val state by viewModel.uiState.collectAsState()
                 QualityBottomSheet(
                     state = state,
                     onDismiss = { finish() },
-                    onDownload = { variant -> viewModel.download(this, tweetUrl, variant) }
+                    onDownload = { variant -> viewModel.download(tweetUrl, variant) }
                 )
             }
         }

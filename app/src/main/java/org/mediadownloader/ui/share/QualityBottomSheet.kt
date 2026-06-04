@@ -7,6 +7,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+
 import org.mediadownloader.data.remote.model.VideoVariant
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -16,9 +17,16 @@ fun QualityBottomSheet(
     onDismiss: () -> Unit,
     onDownload: (VideoVariant) -> Unit
 ) {
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val isDownloading by rememberUpdatedState(state is ShareUiState.Downloading)
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true,
+        confirmValueChange = { !isDownloading }
+    )
 
-    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
+    ModalBottomSheet(
+        onDismissRequest = { if (!isDownloading) onDismiss() },
+        sheetState = sheetState
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -64,9 +72,19 @@ fun QualityBottomSheet(
                     TextButton(onClick = onDismiss, modifier = Modifier.fillMaxWidth()) { Text("Close") }
                 }
                 is ShareUiState.Downloading -> {
-                    Text("Download started! Check your notifications.")
-                    Spacer(Modifier.height(8.dp))
-                    TextButton(onClick = onDismiss, modifier = Modifier.fillMaxWidth()) { Text("Close") }
+                    Text(
+                        text = if (state.progress == 0) "Downloading…" else "Downloading… ${state.progress} %",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Spacer(Modifier.height(12.dp))
+                    if (state.progress == 0) {
+                        LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                    } else {
+                        LinearProgressIndicator(
+                            progress = { state.progress / 100f },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
                 }
                 else -> {}
             }

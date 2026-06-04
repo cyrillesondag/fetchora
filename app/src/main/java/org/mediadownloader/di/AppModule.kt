@@ -1,6 +1,7 @@
 package org.mediadownloader.di
 
 import android.content.Context
+import androidx.work.WorkManager
 import org.mediadownloader.data.local.datastore.SettingsDataStore
 import dagger.Module
 import dagger.Provides
@@ -17,4 +18,11 @@ object AppModule {
     @Singleton
     fun provideSettingsDataStore(@ApplicationContext context: Context): SettingsDataStore =
         SettingsDataStore(context)
+
+    // WorkManager auto-init is disabled in the manifest; XDownloaderApp implements Configuration.Provider
+    // and supplies HiltWorkerFactory. getInstance() triggers that deferred init on first call.
+    @Provides
+    @Singleton
+    fun provideWorkManager(@ApplicationContext context: Context): WorkManager =
+        WorkManager.getInstance(context)
 }

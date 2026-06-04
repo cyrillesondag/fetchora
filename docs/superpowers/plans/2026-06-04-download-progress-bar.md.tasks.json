@@ -1,0 +1,33 @@
+{
+  "planPath": "docs/superpowers/plans/2026-06-04-download-progress-bar.md",
+  "tasks": [
+    {
+      "id": 27,
+      "subject": "Task 1: WorkManager Hilt provider + DownloadWorker setProgress",
+      "status": "completed",
+      "description": "**Goal:** Make WorkManager injectable via Hilt and emit progress via setProgress in DownloadWorker.\n\n**Files:**\n- Modify: `app/src/main/java/org/mediadownloader/di/AppModule.kt`\n- Modify: `app/src/main/java/org/mediadownloader/worker/DownloadWorker.kt`\n\n**Acceptance Criteria:**\n- [ ] WorkManager provided as @Singleton in Hilt graph\n- [ ] DownloadWorker companion has `const val KEY_PERCENT = \"percent\"`\n- [ ] `setProgress(workDataOf(KEY_PERCENT to percent))` called in download loop when totalBytes > 0\n\n**Verify:** `JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew :app:compileDebugKotlin` → BUILD SUCCESSFUL\n\n```json:metadata\n{\"files\": [\"app/src/main/java/org/mediadownloader/di/AppModule.kt\", \"app/src/main/java/org/mediadownloader/worker/DownloadWorker.kt\"], \"verifyCommand\": \"JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew :app:compileDebugKotlin\", \"acceptanceCriteria\": [\"WorkManager provided as @Singleton\", \"KEY_PERCENT constant added\", \"setProgress called in download loop\"]}\n```"
+    },
+    {
+      "id": 28,
+      "subject": "Task 2: ShareViewModel — Downloading(progress), WorkInfo observation, finishEvents",
+      "status": "completed",
+      "blockedBy": [27],
+      "description": "**Goal:** Refactor ShareViewModel to inject WorkManager, expose Downloading(progress: Int) state, observe WorkInfo flow, and emit finishEvents on terminal states.\n\n**Files:**\n- Modify: `app/src/main/java/org/mediadownloader/ui/share/ShareViewModel.kt`\n- Modify: `app/src/test/java/org/mediadownloader/ui/share/ShareViewModelTest.kt`\n\n**Verify:** `JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew :app:testDebugUnitTest --tests \"org.mediadownloader.ui.share.ShareViewModelTest\"` → BUILD SUCCESSFUL, 0 failures\n\n```json:metadata\n{\"files\": [\"app/src/main/java/org/mediadownloader/ui/share/ShareViewModel.kt\", \"app/src/test/java/org/mediadownloader/ui/share/ShareViewModelTest.kt\"], \"verifyCommand\": \"JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew :app:testDebugUnitTest --tests \\\"org.mediadownloader.ui.share.ShareViewModelTest\\\"\", \"acceptanceCriteria\": [\"Downloading is data class with progress: Int\", \"WorkManager injected\", \"download() has no Context param\", \"Downloading(0) set immediately\", \"WorkInfo flow observed\", \"finishEvents emitted on terminal state\", \"8 tests pass\"]}\n```"
+    },
+    {
+      "id": 29,
+      "subject": "Task 3: QualityBottomSheet — LinearProgressIndicator + non-dismissable",
+      "status": "completed",
+      "blockedBy": [28],
+      "description": "**Goal:** Replace placeholder text with a live LinearProgressIndicator and prevent sheet dismissal during download.\n\n**Files:**\n- Modify: `app/src/main/java/org/mediadownloader/ui/share/QualityBottomSheet.kt`\n\n**Verify:** `JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew :app:compileDebugKotlin` → BUILD SUCCESSFUL\n\n```json:metadata\n{\"files\": [\"app/src/main/java/org/mediadownloader/ui/share/QualityBottomSheet.kt\"], \"verifyCommand\": \"JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew :app:compileDebugKotlin\", \"acceptanceCriteria\": [\"Indeterminate at progress=0\", \"Determinate at progress>0\", \"Percentage text shown\", \"Non-dismissable during Downloading\", \"Dismissable in other states\"]}\n```"
+    },
+    {
+      "id": 30,
+      "subject": "Task 4: ShareReceiverActivity — collect finishEvents + commit all",
+      "status": "completed",
+      "blockedBy": [29],
+      "description": "**Goal:** Wire finishEvents in ShareReceiverActivity so the Activity auto-closes, update download() call, and commit all changes.\n\n**Files:**\n- Modify: `app/src/main/java/org/mediadownloader/ui/share/ShareReceiverActivity.kt`\n\n**Verify:** `JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew :app:testDebugUnitTest` → BUILD SUCCESSFUL, 0 failures\n\n```json:metadata\n{\"files\": [\"app/src/main/java/org/mediadownloader/ui/share/ShareReceiverActivity.kt\"], \"verifyCommand\": \"JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew :app:testDebugUnitTest\", \"acceptanceCriteria\": [\"LaunchedEffect collects finishEvents and calls finish()\", \"download() called without context\", \"0 test failures\", \"All files committed\"]}\n```"
+    }
+  ],
+  "lastUpdated": "2026-06-04T00:00:00Z"
+}

@@ -30,6 +30,7 @@ class DownloadWorker @AssistedInject constructor(
         const val KEY_FILE_NAME   = "fileName"
         const val KEY_DOWNLOAD_ID = "downloadId"
         const val KEY_FOLDER_URI  = "folderUri"
+        const val KEY_PERCENT     = "percent"
 
         fun buildRequest(
             videoUrl: String,
@@ -88,6 +89,7 @@ class DownloadWorker @AssistedInject constructor(
                         downloaded += read
                         if (totalBytes > 0) {
                             val percent = (downloaded * 100 / totalBytes).toInt()
+                            setProgress(workDataOf(KEY_PERCENT to percent))
                             setForeground(ForegroundInfo(
                                 downloadId.hashCode(),
                                 notificationHelper.buildProgress(downloadId.hashCode(), percent)
