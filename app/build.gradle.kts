@@ -24,8 +24,21 @@ android {
         testInstrumentationRunner = "com.google.dagger.hilt.android.testing.HiltTestRunner"
     }
 
+    signingConfigs {
+        if (System.getenv("SIGNING_KEY_ALIAS") != null) {
+            create("release") {
+                storeFile = rootProject.file("keystore.jks")
+                storePassword = System.getenv("SIGNING_STORE_PASSWORD")
+                keyAlias = System.getenv("SIGNING_KEY_ALIAS")
+                keyPassword = System.getenv("SIGNING_KEY_PASSWORD")
+            }
+        }
+    }
+
     buildTypes {
         release {
+            signingConfig = signingConfigs.findByName("release")
+                ?: signingConfigs.getByName("debug")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -55,6 +68,7 @@ room {
 dependencies {
     // Compose BOM
     implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
     androidTestImplementation(platform(libs.androidx.compose.bom))
 
     // Core

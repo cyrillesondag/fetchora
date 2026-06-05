@@ -1,0 +1,33 @@
+{
+  "planPath": "docs/superpowers/plans/2026-06-05-github-preparation.md",
+  "tasks": [
+    {
+      "id": 38,
+      "subject": "Task 1: CI Workflow",
+      "status": "completed",
+      "description": "**Goal:** Create a GitHub Actions workflow that runs unit tests and builds a debug APK on every push and pull request to `main`.\n\n**Files:**\n- Create: `.github/workflows/ci.yml`\n\n**Acceptance Criteria:**\n- [ ] Workflow triggers on `push` to `main` and `pull_request` targeting `main`\n- [ ] Uses JDK 21 (temurin distribution)\n- [ ] Gradle cache configured with hash key\n- [ ] Runs `./gradlew :app:testDebugUnitTest`\n- [ ] Runs `./gradlew :app:assembleDebug`\n\n**Verify:** `python3 -c \"import yaml,sys; yaml.safe_load(open('.github/workflows/ci.yml')) or sys.exit(1); print('VALID')\"` → `VALID`\n\n```json:metadata\n{\"files\": [\".github/workflows/ci.yml\"], \"verifyCommand\": \"python3 -c \\\"import yaml,sys; yaml.safe_load(open('.github/workflows/ci.yml')) or sys.exit(1); print('VALID')\\\"\", \"acceptanceCriteria\": [\"Workflow triggers on push to main and pull_request targeting main\", \"Uses JDK 21 (temurin distribution)\", \"Gradle cache configured with hash key\", \"Runs ./gradlew :app:testDebugUnitTest\", \"Runs ./gradlew :app:assembleDebug\"]}\n```"
+    },
+    {
+      "id": 39,
+      "subject": "Task 2: Gradle Signing Config + Publish Workflow",
+      "status": "completed",
+      "blockedBy": [38],
+      "description": "**Goal:** Add a conditional release signing config to Gradle (reads env vars, falls back to debug signing locally) and create the Play Store publish workflow triggered on version tags.\n\n**Files:**\n- Modify: `app/build.gradle.kts`\n- Create: `.github/workflows/publish.yml`\n\n**Acceptance Criteria:**\n- [ ] `signingConfigs.release` reads `SIGNING_KEY_ALIAS`, `SIGNING_KEY_PASSWORD`, `SIGNING_STORE_PASSWORD` from env\n- [ ] `release` buildType uses `signingConfigs.release` when env var is set, else falls back to `debug`\n- [ ] `assembleRelease` succeeds locally (unsigned/debug-signed, no env vars needed)\n- [ ] `publish.yml` triggers on tags matching `v*.*.*`\n- [ ] `publish.yml` decodes keystore from `secrets.KEYSTORE_BASE64`, builds AAB, uploads to `production` track, cleans up keystore with `if: always()`\n\n**Verify:** `JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew :app:assembleRelease` → `BUILD SUCCESSFUL`\n\n```json:metadata\n{\"files\": [\"app/build.gradle.kts\", \".github/workflows/publish.yml\"], \"verifyCommand\": \"JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew :app:assembleRelease\", \"acceptanceCriteria\": [\"signingConfigs.release reads SIGNING_KEY_ALIAS, SIGNING_KEY_PASSWORD, SIGNING_STORE_PASSWORD from env\", \"release buildType uses signingConfigs.release when env var is set, else falls back to debug\", \"assembleRelease succeeds locally\", \"publish.yml triggers on tags matching v*.*.*\", \"publish.yml decodes keystore, builds AAB, uploads to production track, cleans up keystore\"]}\n```"
+    },
+    {
+      "id": 40,
+      "subject": "Task 3: README",
+      "status": "completed",
+      "blockedBy": [39],
+      "description": "**Goal:** Create a comprehensive README.md presenting the project, features, build instructions, and CI/CD secrets table.\n\n**Files:**\n- Create: `README.md`\n\n**Acceptance Criteria:**\n- [ ] CI badge and MIT badge present\n- [ ] Features list covers quality selection, progress bar, history, configurable Cobalt URL\n- [ ] Build instructions use `./gradlew :app:testDebugUnitTest`\n- [ ] Secrets table lists all 5 required secrets with generation instructions\n- [ ] Links to CONTRIBUTING.md and LICENSE\n- [ ] `grep -c \"^##\" README.md` returns 6\n\n**Verify:** `grep -c \"^##\" README.md` → `6`\n\n```json:metadata\n{\"files\": [\"README.md\"], \"verifyCommand\": \"grep -c \\\"^##\\\" README.md\", \"acceptanceCriteria\": [\"CI badge and MIT badge present\", \"Features list covers quality selection, progress bar, history, configurable Cobalt URL\", \"Build instructions use ./gradlew :app:testDebugUnitTest\", \"Secrets table lists all 5 required secrets with generation instructions\", \"Links to CONTRIBUTING.md and LICENSE\", \"grep -c '^##' README.md returns 6\"]}\n```"
+    },
+    {
+      "id": 41,
+      "subject": "Task 4: LICENSE + CONTRIBUTING + Final Commit",
+      "status": "completed",
+      "blockedBy": [40],
+      "description": "**Goal:** Add MIT license file and contributor guide, then commit all new files in a single commit.\n\n**Files:**\n- Create: `LICENSE`\n- Create: `CONTRIBUTING.md`\n\n**Acceptance Criteria:**\n- [ ] LICENSE contains standard MIT text with year 2026 and name Cyrille Sondag\n- [ ] CONTRIBUTING.md covers prerequisites, setup verification, commit conventions, PR process, and architecture overview\n- [ ] All 6 new/modified files committed successfully\n- [ ] `git log --oneline -1` shows \"chore: add GitHub project files\"\n\n**Verify:** `git log --oneline -1` → commit message contains \"chore: add GitHub project files\"\n\n```json:metadata\n{\"files\": [\"LICENSE\", \"CONTRIBUTING.md\"], \"verifyCommand\": \"git log --oneline -1\", \"acceptanceCriteria\": [\"LICENSE contains standard MIT text with year 2026 and name Cyrille Sondag\", \"CONTRIBUTING.md covers prerequisites, setup verification, commit conventions, PR process, and architecture overview\", \"All 6 new/modified files committed successfully\"]}\n```"
+    }
+  ],
+  "lastUpdated": "2026-06-05T00:00:00Z"
+}
