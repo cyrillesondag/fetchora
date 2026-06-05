@@ -16,12 +16,11 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.MediaDownloader">
+        android:theme="@style/Theme.FetchoraTheme">
         <activity
             android:name=".ui.main.MainActivity"
             android:exported="true"
-            android:label="@string/app_name"
-            android:theme="@style/Theme.MediaDownloader">
+            android:theme="@style/Theme.FetchoraTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

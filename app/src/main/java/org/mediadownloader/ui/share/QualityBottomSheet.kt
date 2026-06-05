@@ -1,13 +1,33 @@
 package org.mediadownloader.ui.share
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.selectable
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-
 import org.mediadownloader.data.remote.model.VideoVariant
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -15,7 +35,8 @@ import org.mediadownloader.data.remote.model.VideoVariant
 fun QualityBottomSheet(
     state: ShareUiState,
     onDismiss: () -> Unit,
-    onDownload: (VideoVariant) -> Unit
+    onDownload: (VideoVariant) -> Unit,
+    onRetry: () -> Unit
 ) {
     val isDownloading by rememberUpdatedState(state is ShareUiState.Downloading)
     val sheetState = rememberModalBottomSheetState(
@@ -36,7 +57,7 @@ fun QualityBottomSheet(
             Spacer(Modifier.height(16.dp))
 
             when (state) {
-                is ShareUiState.Loading -> {
+                is ShareUiState.Idle, is ShareUiState.Loading -> {
                     Box(Modifier.fillMaxWidth().height(80.dp), contentAlignment = Alignment.Center) {
                         CircularProgressIndicator()
                     }
@@ -68,8 +89,13 @@ fun QualityBottomSheet(
                 }
                 is ShareUiState.Error -> {
                     Text(state.message, color = MaterialTheme.colorScheme.error)
-                    Spacer(Modifier.height(8.dp))
-                    TextButton(onClick = onDismiss, modifier = Modifier.fillMaxWidth()) { Text("Close") }
+                    Spacer(Modifier.height(16.dp))
+                    Button(onClick = onRetry, modifier = Modifier.fillMaxWidth()) {
+                        Text("Retry")
+                    }
+                    TextButton(onClick = onDismiss, modifier = Modifier.fillMaxWidth()) {
+                        Text("Close")
+                    }
                 }
                 is ShareUiState.Downloading -> {
                     Text(
@@ -86,7 +112,6 @@ fun QualityBottomSheet(
                         )
                     }
                 }
-                else -> {}
             }
             Spacer(Modifier.height(24.dp))
         }

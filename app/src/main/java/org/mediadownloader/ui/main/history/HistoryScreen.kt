@@ -1,13 +1,28 @@
 package org.mediadownloader.ui.main.history
 
-import androidx.compose.foundation.layout.*
+import android.content.Intent
+import android.text.format.Formatter
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import org.mediadownloader.data.local.db.DownloadEntity
 import org.mediadownloader.data.local.db.DownloadStatus
@@ -31,13 +46,29 @@ fun HistoryScreen(viewModel: HistoryViewModel = hiltViewModel()) {
 
 @Composable
 private fun DownloadCard(item: DownloadEntity) {
-    Card(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
+    val context = LocalContext.current
+    Card(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+        onClick = {
+            if (item.status == DownloadStatus.COMPLETED) {
+                try {
+                    val intent = Intent(Intent.ACTION_VIEW).apply {
+                        setDataAndType("content://${item.filePath.toUri()}".toUri(), "video/*")
+                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    }
+                    context.startActivity(intent)
+                } catch (_: Exception) {
+                    // Ignore for now
+                }
+            }
+        }
+    ) {
         Column(modifier = Modifier.padding(12.dp)) {
             Text(item.fileName, style = MaterialTheme.typography.bodyLarge)
             Spacer(Modifier.height(4.dp))
             val statusText = when (item.status) {
                 DownloadStatus.DOWNLOADING -> "Downloading…"
-                DownloadStatus.COMPLETED   -> "Done · ${item.fileSizeBytes / 1024} KB"
+                DownloadStatus.COMPLETED   -> "Done · ${Formatter.formatShortFileSize(context, item.fileSizeBytes)}"
                 DownloadStatus.FAILED      -> "Failed"
             }
             Text(statusText,

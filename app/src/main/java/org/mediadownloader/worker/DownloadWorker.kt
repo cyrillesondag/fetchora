@@ -1,27 +1,36 @@
 package org.mediadownloader.worker
 
 import android.content.Context
-import android.net.Uri
+import androidx.core.net.toUri
 import androidx.documentfile.provider.DocumentFile
 import androidx.hilt.work.HiltWorker
-import androidx.work.*
-import org.mediadownloader.data.local.db.DownloadDao
-import org.mediadownloader.data.local.db.DownloadEntity
-import org.mediadownloader.data.local.db.DownloadStatus
-import org.mediadownloader.util.NotificationHelper
+import androidx.work.BackoffPolicy
+import androidx.work.Constraints
+import androidx.work.CoroutineWorker
+import androidx.work.ForegroundInfo
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequest
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkerParameters
+import androidx.work.workDataOf
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import org.mediadownloader.data.local.db.DownloadDao
+import org.mediadownloader.data.local.db.DownloadEntity
+import org.mediadownloader.data.local.db.DownloadStatus
+import org.mediadownloader.util.NotificationHelper
 
 @HiltWorker
 class DownloadWorker @AssistedInject constructor(
     @Assisted context: Context,
     @Assisted params: WorkerParameters,
     private val dao: DownloadDao,
-    private val notificationHelper: NotificationHelper
+    private val notificationHelper: NotificationHelper,
+    private val client: OkHttpClient
 ) : CoroutineWorker(context, params) {
 
     companion object {
@@ -51,8 +60,6 @@ class DownloadWorker @AssistedInject constructor(
             .build()
     }
 
-    private val client = OkHttpClient()
-
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         val videoUrl   = inputData.getString(KEY_VIDEO_URL)   ?: return@withContext Result.failure()
         val tweetUrl   = inputData.getString(KEY_TWEET_URL)   ?: return@withContext Result.failure()
@@ -66,6 +73,8 @@ class DownloadWorker @AssistedInject constructor(
         ))
         notificationHelper.createChannel()
 
+        var outputDocumentFile: DocumentFile? = null
+
         runCatching {
             val response = client.newCall(Request.Builder().url(videoUrl).build()).execute()
             if (!response.isSuccessful) return@withContext Result.retry()
@@ -74,36 +83,49 @@ class DownloadWorker @AssistedInject constructor(
             val totalBytes = body.contentLength()
             var downloaded = 0L
 
-            val folderDocUri = Uri.parse(folderUri)
-            val outputUri = DocumentFile
+            val folderDocUri = folderUri.toUri()
+            val docFile = DocumentFile
                 .fromTreeUri(applicationContext, folderDocUri)
                 ?.createFile("video/mp4", fileName)
-                ?.uri ?: return@withContext Result.failure()
+                ?: throw IllegalStateException("Could not create file in target folder")
+            
+            outputDocumentFile = docFile
+            val outputUri = docFile.uri
+
+            dao.updateFilePath(downloadId, outputUri.toString())
 
             applicationContext.contentResolver.openOutputStream(outputUri)?.use { out ->
                 body.byteStream().use { input ->
-                    val buffer = ByteArray(8 * 1024)
+                    val buffer = ByteArray(64 * 1024)
                     var read: Int
+                    var lastPercent = -1
+                    
                     while (input.read(buffer).also { read = it } != -1) {
                         out.write(buffer, 0, read)
                         downloaded += read
                         if (totalBytes > 0) {
                             val percent = (downloaded * 100 / totalBytes).toInt()
-                            setProgress(workDataOf(KEY_PERCENT to percent))
-                            setForeground(ForegroundInfo(
-                                downloadId.hashCode(),
-                                notificationHelper.buildProgress(downloadId.hashCode(), percent)
-                            ))
+                            if (percent > lastPercent) {
+                                lastPercent = percent
+                                setProgress(workDataOf(KEY_PERCENT to percent))
+                                setForeground(ForegroundInfo(
+                                    downloadId.hashCode(),
+                                    notificationHelper.buildProgress(percent)
+                                ))
+                            }
                         }
                     }
                 }
             }
 
             dao.updateStatus(downloadId, DownloadStatus.COMPLETED, downloaded)
-            notificationHelper.buildSuccess(downloadId.hashCode(), outputUri.toString())
+            val successNotification = notificationHelper.buildSuccess(downloadId.hashCode(), outputUri.toString())
+            notificationHelper.show(downloadId.hashCode(), successNotification)
         }.getOrElse {
+            outputDocumentFile?.delete()
             dao.updateStatus(downloadId, DownloadStatus.FAILED)
-            notificationHelper.buildFailure(downloadId.hashCode(), it.message ?: "Unknown error")
+            val failureNotification = notificationHelper.buildFailure(it.message ?: "Unknown error")
+            notificationHelper.show(downloadId.hashCode(), failureNotification)
             return@withContext Result.failure()
         }
 

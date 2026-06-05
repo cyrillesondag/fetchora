@@ -4,10 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
-import org.mediadownloader.data.local.datastore.SettingsDataStore
-import org.mediadownloader.data.remote.CobaltRepository
-import org.mediadownloader.data.remote.model.VideoVariant
-import org.mediadownloader.worker.DownloadWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,6 +15,10 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import org.mediadownloader.data.local.datastore.SettingsDataStore
+import org.mediadownloader.data.remote.CobaltRepository
+import org.mediadownloader.data.remote.model.VideoVariant
+import org.mediadownloader.worker.DownloadWorker
 import java.util.UUID
 import javax.inject.Inject
 
@@ -47,13 +47,15 @@ class ShareViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = ShareUiState.Loading
             repository.getVariants(tweetUrl).fold(
-                onSuccess = { variants ->
-                    _uiState.value = if (variants.isEmpty())
+                onSuccess = {
+                    variants -> _uiState.value = if (variants.isEmpty())
                         ShareUiState.Error("No video found in this tweet")
                     else
                         ShareUiState.Loaded(variants)
                 },
-                onFailure = { _uiState.value = ShareUiState.Error(it.message ?: "Unknown error") }
+                onFailure = {
+                    _uiState.value = ShareUiState.Error(it.message ?: "Unknown error")
+                },
             )
         }
     }

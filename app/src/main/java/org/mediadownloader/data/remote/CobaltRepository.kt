@@ -7,11 +7,14 @@ import org.mediadownloader.util.QualityParser
 import javax.inject.Inject
 import javax.inject.Singleton
 
+class CobaltRepositoryException(message: String) : Exception(message)
+
 @Singleton
 class CobaltRepository @Inject constructor(private val api: CobaltApi) {
 
     suspend fun getVariants(tweetUrl: String): Result<List<VideoVariant>> = runCatching {
         val response = api.resolve(CobaltRequest(tweetUrl))
+
         when (response.status) {
             "picker" -> {
                 val items = response.picker.orEmpty().filter { it.type == "video" }
@@ -23,11 +26,18 @@ class CobaltRepository @Inject constructor(private val api: CobaltApi) {
                 }
             }
             "stream", "redirect", "tunnel" -> {
-                val url = response.url ?: error("Missing URL in ${response.status} response")
+                val url = response.url ?: throw CobaltRepositoryException("The service failed to provide a download link.")
                 listOf(VideoVariant(url, QualityParser.parseQuality(url)))
             }
-            "error" -> error(response.error?.code ?: "Unknown Cobalt error")
-            else -> error("Unexpected Cobalt status: ${response.status}")
+            "error" -> {
+                val message = when (response.error?.code) {
+                    "error.api.rate_limit" -> "Too many requests. Please try again later."
+                    "error.invalid_url" -> "The provided URL is invalid or not supported."
+                    else -> "The download service returned an error."
+                }
+                throw CobaltRepositoryException(message)
+            }
+            else -> throw CobaltRepositoryException("Unexpected response from the service.")
         }
     }
 

@@ -133,7 +133,7 @@ fun SettingsContent(
                 ) {
                     Spacer(modifier = Modifier.weight(1f))
                     Button(
-                        onClick = { folderPicker.launch(null) },
+                        onClick = { folderPicker.launch(folderUri?.toUri()) },
                         modifier = Modifier.weight(1f)
                     ) {
                         Icon(Icons.Default.Folder, contentDescription = null)
@@ -227,7 +227,7 @@ fun SettingsContent(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.spacedBy(16.dp)
                             ) {
-                                val servicesBuffer = StringBuffer()
+                                val servicesBuffer = StringBuilder()
                                 serverInfoState.info.services.joinTo(buffer = servicesBuffer, separator = ", ")
                                 InfoColumn(
                                     modifier = Modifier.weight(1f),

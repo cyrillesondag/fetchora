@@ -1,16 +1,14 @@
 package org.mediadownloader.di
 
-import org.mediadownloader.data.local.datastore.SettingsDataStore
-import org.mediadownloader.data.remote.CobaltApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
+import org.mediadownloader.data.local.datastore.SettingsDataStore
 import org.mediadownloader.data.local.network.HostSettingInterceptor
+import org.mediadownloader.data.remote.CobaltApi
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
@@ -21,20 +19,29 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideOkHttp(settings: SettingsDataStore): OkHttpClient = OkHttpClient.Builder()
+    fun provideOkHttp(): OkHttpClient = OkHttpClient.Builder()
+        .connectTimeout(10, java.util.concurrent.TimeUnit.SECONDS)
+        .readTimeout(60, java.util.concurrent.TimeUnit.SECONDS) // For large file downloads
+        .writeTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
         .addInterceptor(HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BASIC
         })
-        .addInterceptor(HostSettingInterceptor(settings))
         .build()
 
     @Provides
     @Singleton
     fun provideCobaltApi(okHttpClient: OkHttpClient, settings: SettingsDataStore): CobaltApi {
-        val baseUrl = runBlocking { settings.cobaltUrl.first() }
+        // Use a placeholder URL. HostSettingInterceptor will replace it with the real one from settings.
+        val placeholderUrl = "https://cobalt.example.com/"
+
+        val client = okHttpClient.newBuilder()
+            .addInterceptor(HostSettingInterceptor(settings))
+            .build()
+
+
         return Retrofit.Builder()
-            .baseUrl(baseUrl)
-            .client(okHttpClient)
+            .baseUrl(placeholderUrl)
+            .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(CobaltApi::class.java)

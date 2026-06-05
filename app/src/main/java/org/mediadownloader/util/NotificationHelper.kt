@@ -6,8 +6,8 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import androidx.core.app.NotificationCompat
+import androidx.core.net.toUri
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -28,7 +28,7 @@ class NotificationHelper @Inject constructor(@ApplicationContext private val con
         manager.createNotificationChannel(channel)
     }
 
-    fun buildProgress(notificationId: Int, progressPercent: Int): Notification =
+    fun buildProgress(progressPercent: Int): Notification =
         NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(android.R.drawable.stat_sys_download)
             .setContentTitle("Downloading video…")
@@ -41,7 +41,7 @@ class NotificationHelper @Inject constructor(@ApplicationContext private val con
         val openIntent = PendingIntent.getActivity(
             context, notificationId,
             Intent(Intent.ACTION_VIEW).apply {
-                setDataAndType(Uri.parse(filePath), "video/*")
+                setDataAndType(filePath.toUri(), "video/*")
                 flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
             },
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
@@ -55,11 +55,15 @@ class NotificationHelper @Inject constructor(@ApplicationContext private val con
             .build()
     }
 
-    fun buildFailure(notificationId: Int, reason: String): Notification =
+    fun buildFailure(reason: String): Notification =
         NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(android.R.drawable.stat_notify_error)
             .setContentTitle("Download failed")
             .setContentText(reason)
             .setAutoCancel(true)
             .build()
+
+    fun show(notificationId: Int, notification: Notification) {
+        manager.notify(notificationId, notification)
+    }
 }

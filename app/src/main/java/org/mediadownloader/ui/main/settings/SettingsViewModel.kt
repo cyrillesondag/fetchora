@@ -4,13 +4,14 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import org.mediadownloader.data.local.datastore.SettingsDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import org.mediadownloader.data.local.datastore.SettingsDataStore
 import org.mediadownloader.data.remote.CobaltRepository
 import javax.inject.Inject
 
@@ -27,8 +28,8 @@ class SettingsViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val cobaltUrl = settings.getCobaltUrl()
-            _serverInfoState.value = cobaltRepository.getInfo(cobaltUrl).fold(
+            val url = settings.cobaltUrl.first()
+            _serverInfoState.value = cobaltRepository.getInfo(url).fold(
                 onSuccess = { ServerInfoState.Success(it) },
                 onFailure = { ServerInfoState.Error(it.message ?: "Connection failed") }
             )

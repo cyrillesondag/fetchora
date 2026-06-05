@@ -17,7 +17,6 @@ interface CobaltApi {
 
 
     @GET
-    @Headers( "Accept: application/json",
-        "Content-Type: application/json")
+    @Headers("Accept: application/json")
     suspend fun info(@Url cobaltUrl: String): CobaltInfoResponse
 }

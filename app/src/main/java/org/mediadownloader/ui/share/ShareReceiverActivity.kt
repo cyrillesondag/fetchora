@@ -8,8 +8,8 @@ import androidx.activity.viewModels
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import org.mediadownloader.ui.theme.FetchoraTheme
 import dagger.hilt.android.AndroidEntryPoint
+import org.mediadownloader.ui.theme.FetchoraTheme
 
 @AndroidEntryPoint
 class ShareReceiverActivity : ComponentActivity() {
@@ -45,7 +45,8 @@ class ShareReceiverActivity : ComponentActivity() {
                 QualityBottomSheet(
                     state = state,
                     onDismiss = { finish() },
-                    onDownload = { variant -> viewModel.download(tweetUrl, variant) }
+                    onDownload = { variant -> viewModel.download(tweetUrl, variant) },
+                    onRetry = { viewModel.loadVariants(tweetUrl) }
                 )
             }
         }
