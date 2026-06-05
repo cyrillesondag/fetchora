@@ -1,43 +1,17 @@
-package org.mediadownloader.data.local.datastore
+package org.mediadownloader.data.local.network
 
-import android.content.Context
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
-import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
-import javax.inject.Inject
-import javax.inject.Singleton
+import okhttp3.Interceptor
+import okhttp3.Response
+import org.mediadownloader.data.local.datastore.SettingsDataStore
 
-private val Context.dataStore by preferencesDataStore(name = "settings")
+class HostSettingInterceptor(
+    private val settings: SettingsDataStore) : Interceptor {
 
-@Singleton
-class SettingsDataStore @Inject constructor(@ApplicationContext private val context: Context) {
-
-    companion object {
-        const val DEFAULT_COBALT_URL = "https://api.cobalt.tools/"
-    }
-
-    private val keyCobaltUrl = stringPreferencesKey("cobalt_url")
-    private val keyFolderUri = stringPreferencesKey("folder_uri")
-
-    val cobaltUrl: Flow<String> = context.dataStore.data.map { prefs ->
-        prefs[keyCobaltUrl]?.takeIf { it.isNotBlank() } ?: DEFAULT_COBALT_URL
-    }
-
-    val folderUri: Flow<String?> = context.dataStore.data.map { prefs ->
-        prefs[keyFolderUri]
-    }
-
-    suspend fun setCobaltUrl(url: String) {
-        context.dataStore.edit { prefs ->
-            if (url.isBlank()) prefs.remove(keyCobaltUrl)
-            else prefs[keyCobaltUrl] = url
+    override fun intercept(chain: Interceptor.Chain): Response {
+        if (chain.request().method == "GET") {
+            return chain.proceed(chain.request())
         }
-    }
-
-    suspend fun setFolderUri(uri: String) {
-        context.dataStore.edit { it[keyFolderUri] = uri }
+        val cobaltUrl = settings.getCobaltUrl()
+        return chain.proceed(chain.request().newBuilder().url(cobaltUrl).build())
     }
 }

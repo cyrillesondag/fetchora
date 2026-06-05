@@ -6,16 +6,34 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import org.mediadownloader.data.local.datastore.SettingsDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import org.mediadownloader.data.remote.CobaltRepository
 import javax.inject.Inject
 
 @HiltViewModel
-class SettingsViewModel @Inject constructor(private val settings: SettingsDataStore) : ViewModel() {
+class SettingsViewModel @Inject constructor(
+    private val settings: SettingsDataStore,
+    private val cobaltRepository: CobaltRepository) : ViewModel() {
 
     val cobaltUrl = settings.cobaltUrl.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), "")
     val folderUri = settings.folderUri.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+
+    private val _serverInfoState = MutableStateFlow<ServerInfoState>(ServerInfoState.Idle)
+    val serverInfoState = _serverInfoState.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            val cobaltUrl = settings.getCobaltUrl()
+            _serverInfoState.value = cobaltRepository.getInfo(cobaltUrl).fold(
+                onSuccess = { ServerInfoState.Success(it) },
+                onFailure = { ServerInfoState.Error(it.message ?: "Connection failed") }
+            )
+        }
+    }
 
     fun onFolderSelected(context: Context, uri: Uri) {
         context.contentResolver.takePersistableUriPermission(
@@ -28,5 +46,16 @@ class SettingsViewModel @Inject constructor(private val settings: SettingsDataSt
 
     fun saveCobaltUrl(url: String) {
         viewModelScope.launch { settings.setCobaltUrl(url) }
+    }
+
+    fun testCobaltUrl(url: String) {
+        viewModelScope.launch {
+            _serverInfoState.value = ServerInfoState.Loading
+            val result = cobaltRepository.getInfo(url)
+            _serverInfoState.value = result.fold(
+                onSuccess = { ServerInfoState.Success(it) },
+                onFailure = { ServerInfoState.Error(it.message ?: "Connection failed") }
+            )
+        }
     }
 }

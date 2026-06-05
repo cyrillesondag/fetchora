@@ -1,5 +1,6 @@
 package org.mediadownloader.data.remote
 
+import org.mediadownloader.data.remote.model.CobaltInfo
 import org.mediadownloader.data.remote.model.CobaltRequest
 import org.mediadownloader.data.remote.model.VideoVariant
 import org.mediadownloader.util.QualityParser
@@ -28,5 +29,10 @@ class CobaltRepository @Inject constructor(private val api: CobaltApi) {
             "error" -> error(response.error?.code ?: "Unknown Cobalt error")
             else -> error("Unexpected Cobalt status: ${response.status}")
         }
+    }
+
+    suspend fun getInfo(cobaltUrl: String): Result<CobaltInfo> = runCatching {
+        val response = api.info(cobaltUrl)
+        response.cobalt
     }
 }

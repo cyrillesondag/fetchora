@@ -2,7 +2,7 @@ package org.mediadownloader.data.remote.model
 
 import com.google.gson.annotations.SerializedName
 
-data class CobaltResponse(
+data class CobaltResolveResponse(
     @SerializedName("status")  val status: String,
     @SerializedName("url")     val url: String?,
     @SerializedName("picker")  val picker: List<PickerItem>?,
