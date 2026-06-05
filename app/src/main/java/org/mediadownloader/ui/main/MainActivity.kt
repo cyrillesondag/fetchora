@@ -15,14 +15,14 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import org.mediadownloader.ui.main.history.HistoryScreen
 import org.mediadownloader.ui.main.settings.SettingsScreen
-import org.mediadownloader.ui.theme.XDownloaderTheme
+import org.mediadownloader.ui.theme.FetchoraTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent { XDownloaderTheme { MainScreen() } }
+        setContent { FetchoraTheme { MainScreen() } }
     }
 }
 

@@ -1,4 +1,4 @@
-# XDownloader
+# Fetchora
 
 > Download X (Twitter) videos directly to your Android phone.
 

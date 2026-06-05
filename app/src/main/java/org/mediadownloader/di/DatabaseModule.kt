@@ -18,7 +18,7 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideDatabase(@ApplicationContext context: Context): AppDatabase =
-        Room.databaseBuilder(context, AppDatabase::class.java, "xdownloader.db").build()
+        Room.databaseBuilder(context, AppDatabase::class.java, "fetchora.db").build()
 
     @Provides
     fun provideDownloadDao(db: AppDatabase): DownloadDao = db.downloadDao()

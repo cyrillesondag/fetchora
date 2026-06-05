@@ -19,7 +19,7 @@ object AppModule {
     fun provideSettingsDataStore(@ApplicationContext context: Context): SettingsDataStore =
         SettingsDataStore(context)
 
-    // WorkManager auto-init is disabled in the manifest; XDownloaderApp implements Configuration.Provider
+    // WorkManager auto-init is disabled in the manifest; FetchoraApp implements Configuration.Provider
     // and supplies HiltWorkerFactory. getInstance() triggers that deferred init on first call.
     @Provides
     @Singleton

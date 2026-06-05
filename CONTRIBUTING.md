@@ -1,4 +1,4 @@
-# Contributing to XDownloader
+# Contributing to Fetchora
 
 Thank you for your interest in contributing! This guide will help you get set up and understand the project conventions.
 

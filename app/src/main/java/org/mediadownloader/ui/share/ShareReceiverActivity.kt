@@ -8,7 +8,7 @@ import androidx.activity.viewModels
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import org.mediadownloader.ui.theme.XDownloaderTheme
+import org.mediadownloader.ui.theme.FetchoraTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -36,7 +36,7 @@ class ShareReceiverActivity : ComponentActivity() {
         viewModel.loadVariants(tweetUrl)
 
         setContent {
-            XDownloaderTheme {
+            FetchoraTheme {
                 LaunchedEffect(Unit) {
                     viewModel.finishEvents.collect { finish() }
                 }
