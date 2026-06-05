@@ -57,9 +57,9 @@ docs: update README secrets table
 |---|---|---|
 | UI | Jetpack Compose + Material 3 | All screens and the share BottomSheet |
 | State | ViewModel + StateFlow | UI state management |
-| DI | Hilt 2.59 | Dependency injection throughout |
-| Downloads | WorkManager 2.10 | Background downloads with progress |
-| Persistence | Room 2.7 | Download history |
+| DI | Hilt 2.59.2 | Dependency injection throughout |
+| Downloads | WorkManager 2.10.1 | Background downloads with progress |
+| Persistence | Room 2.7.1 | Download history |
 | Settings | DataStore Preferences | Cobalt URL, download folder |
 | Network | Retrofit 2.11 + OkHttp 4.12 | Cobalt API calls |
 | Video extraction | [Cobalt API](https://github.com/imputnet/cobalt) | Resolves tweet URLs to video URLs |
