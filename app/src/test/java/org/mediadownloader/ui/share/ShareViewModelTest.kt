@@ -107,6 +107,7 @@ class ShareViewModelTest {
         advanceUntilIdle()
 
         assertEquals(1, events.size)
+        assertEquals(ShareUiState.Downloading(100), viewModel.uiState.value)
         job.cancel()
     }
 
@@ -147,7 +148,6 @@ class ShareViewModelTest {
     @Test
     fun `download with no folder set emits Error`() = runTest {
         coEvery { settings.folderUri } returns flowOf(null)
-        every { workManager.getWorkInfoByIdFlow(any()) } returns flowOf()
 
         viewModel.download("https://x.com/status/1", VideoVariant("https://video.mp4", "720p"))
 

@@ -2,6 +2,7 @@ package org.mediadownloader.ui.share
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import org.mediadownloader.data.local.datastore.SettingsDataStore
 import org.mediadownloader.data.remote.CobaltRepository
@@ -74,6 +75,9 @@ class ShareViewModel @Inject constructor(
                 .onEach { info ->
                     if (info == null) return@onEach
                     if (info.state.isFinished) {
+                        if (info.state == WorkInfo.State.SUCCEEDED) {
+                            _uiState.value = ShareUiState.Downloading(100)
+                        }
                         _finishEvents.emit(Unit)
                     } else {
                         val pct = info.progress.getInt(DownloadWorker.KEY_PERCENT, 0)
