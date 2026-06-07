@@ -15,7 +15,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "org.mediadownloader"
+        applicationId = "cyrillesondag.fetchora"
         minSdk = 29
         targetSdk = 36
         versionCode = 1
@@ -112,6 +112,7 @@ dependencies {
 
     // Coil
     implementation(libs.coil.compose)
+    implementation(libs.coil.video)
 
     // Unit tests
     testImplementation(libs.junit)
