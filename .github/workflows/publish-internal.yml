@@ -4,7 +4,6 @@ on:
   workflow_run:
     workflows: ["CI"]
     types: [completed]
-    branches: [main]
 
 permissions:
   contents: read
@@ -37,7 +36,7 @@ jobs:
           restore-keys: ${{ runner.os }}-gradle-
 
       - name: Decode keystore
-        run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > keystore.jks
+        run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -di > keystore.jks
 
       - name: Build release AAB
         env:
