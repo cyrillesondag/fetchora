@@ -18,7 +18,7 @@ android {
         applicationId = "cyrillesondag.fetchora"
         minSdk = 29
         targetSdk = 36
-        versionCode = 1
+        versionCode = (project.findProperty("versionCode") as String?)?.toInt() ?: 1
         versionName = "1.0"
 
         testInstrumentationRunner = "com.google.dagger.hilt.android.testing.HiltTestRunner"
