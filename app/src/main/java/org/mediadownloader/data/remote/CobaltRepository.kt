@@ -30,14 +30,15 @@ class CobaltRepository @Inject constructor(private val api: CobaltApi) {
                 listOf(VideoVariant(url, QualityParser.parseQuality(url)))
             }
             "error" -> {
-                val message = when (response.error?.code) {
+                val code = response.error?.code
+                val message = when (code) {
                     "error.api.rate_limit" -> "Too many requests. Please try again later."
                     "error.invalid_url" -> "The provided URL is invalid or not supported."
-                    else -> "The download service returned an error."
+                    else -> "The download service returned an error: ${code ?: "unknown"}"
                 }
                 throw CobaltRepositoryException(message)
             }
-            else -> throw CobaltRepositoryException("Unexpected response from the service.")
+            else -> throw CobaltRepositoryException("Unexpected response from the service (status: ${response.status}).")
         }
     }
 

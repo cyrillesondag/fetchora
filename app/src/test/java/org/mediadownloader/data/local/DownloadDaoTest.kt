@@ -27,7 +27,11 @@ class DownloadDaoTest {
     }
 
     @After
-    fun tearDown() = db.close()
+    fun tearDown() {
+        if (::db.isInitialized) {
+            db.close()
+        }
+    }
 
     private fun entity(id: String = "1") = DownloadEntity(
         id = id, tweetUrl = "https://x.com/user/status/$id",
