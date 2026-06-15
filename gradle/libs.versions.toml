@@ -44,9 +44,9 @@ androidx-navigation-compose = { group = "androidx.navigation", name = "navigatio
 # Hilt
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "hilt" }
-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version = "1.2.0" }
-hilt-work = { group = "androidx.hilt", name = "hilt-work", version = "1.2.0" }
-hilt-compiler-androidx = { group = "androidx.hilt", name = "hilt-compiler", version = "1.2.0" }
+hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version = "1.3.0" }
+hilt-work = { group = "androidx.hilt", name = "hilt-work", version = "1.3.0" }
+hilt-compiler-androidx = { group = "androidx.hilt", name = "hilt-compiler", version = "1.3.0" }
 hilt-android-testing = { group = "com.google.dagger", name = "hilt-android-testing", version.ref = "hilt" }
 
 # Room
