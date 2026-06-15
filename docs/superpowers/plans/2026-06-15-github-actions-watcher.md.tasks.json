@@ -1,0 +1,38 @@
+{
+  "planPath": "docs/superpowers/plans/2026-06-15-github-actions-watcher.md",
+  "tasks": [
+    {
+      "id": 7,
+      "subject": "Task 1 : Script de bootstrap (repo mémoire + labels)",
+      "status": "pending",
+      "description": "**Goal :** Script idempotent qui crée le repo `cyrillesondag/claude-memory` et le label `github-watcher` sur tous les repos actifs.\n\n**Files :**\n- Create : `scripts/github-watcher-bootstrap.sh`\n\n**Acceptance Criteria :**\n- [ ] Repo `cyrillesondag/claude-memory` créé, privé\n- [ ] Label `github-watcher` présent sur tous les repos actifs (pushedAt < 90j)\n- [ ] Script idempotent\n\n**Verify :** `bash scripts/github-watcher-bootstrap.sh` → aucune erreur\n\n```json:metadata\n{\"files\": [\"scripts/github-watcher-bootstrap.sh\"], \"verifyCommand\": \"bash scripts/github-watcher-bootstrap.sh && gh repo view cyrillesondag/claude-memory\", \"acceptanceCriteria\": [\"Repo claude-memory créé et privé\", \"Label github-watcher sur les repos actifs\", \"Script idempotent\"]}\n```"
+    },
+    {
+      "id": 8,
+      "subject": "Task 2 : Prompt de la routine hebdomadaire",
+      "status": "pending",
+      "description": "**Goal :** Fichier markdown avec les instructions précises que l'agent cloud exécutera chaque lundi à 8h.\n\n**Files :**\n- Create : `docs/superpowers/routines/github-actions-watcher.md`\n\n**Acceptance Criteria :**\n- [ ] Toutes les étapes du design couvertes\n- [ ] Chaque commande gh complète\n- [ ] Filtrage user.login == cyrillesondag explicite\n- [ ] Deux endpoints commentaires couverts\n- [ ] Format mémoire conforme\n\n**Verify :** Relecture manuelle\n\n```json:metadata\n{\"files\": [\"docs/superpowers/routines/github-actions-watcher.md\"], \"verifyCommand\": \"cat docs/superpowers/routines/github-actions-watcher.md\", \"acceptanceCriteria\": [\"Toutes les étapes design couvertes\", \"Commandes gh complètes\", \"Filtrage user.login cyrillesondag\", \"Format mémoire conforme\"]}\n```"
+    },
+    {
+      "id": 9,
+      "subject": "Task 3 : Entrée mémoire Claude Code (référence vers claude-memory)",
+      "status": "pending",
+      "description": "**Goal :** Ajouter une entrée reference dans le système de mémoire Claude Code pointant vers cyrillesondag/claude-memory.\n\n**Files :**\n- Create : `~/.claude/projects/-home-cyrille-IdeaProjects-twitterDownloadVid/memory/github-watcher-reference.md`\n- Modify : `~/.claude/projects/-home-cyrille-IdeaProjects-twitterDownloadVid/memory/MEMORY.md`\n\n**Acceptance Criteria :**\n- [ ] Fichier mémoire créé avec frontmatter correct\n- [ ] MEMORY.md contient le pointeur\n\n**Verify :** `grep github-watcher ~/.claude/projects/-home-cyrille-IdeaProjects-twitterDownloadVid/memory/MEMORY.md`\n\n```json:metadata\n{\"files\": [\"~/.claude/projects/-home-cyrille-IdeaProjects-twitterDownloadVid/memory/github-watcher-reference.md\"], \"verifyCommand\": \"grep github-watcher ~/.claude/projects/-home-cyrille-IdeaProjects-twitterDownloadVid/memory/MEMORY.md\", \"acceptanceCriteria\": [\"Fichier mémoire créé\", \"MEMORY.md mis à jour\"]}\n```"
+    },
+    {
+      "id": 10,
+      "subject": "Task 4 : Enregistrement de la routine via /schedule",
+      "status": "pending",
+      "blockedBy": [7, 8],
+      "description": "**Goal :** Créer la routine planifiée dans Claude Code avec cron `0 8 * * 1` et `GH_TOKEN` configuré.\n\n**Files :** Aucun — configuration interne Claude Code.\n\n**Acceptance Criteria :**\n- [ ] Routine github-actions-watcher visible dans /schedule list\n- [ ] Cron 0 8 * * 1\n- [ ] GH_TOKEN configuré\n\n**Verify :** `/schedule list`\n\n```json:metadata\n{\"files\": [], \"verifyCommand\": \"/schedule list\", \"acceptanceCriteria\": [\"Routine github-actions-watcher visible\", \"Cron 0 8 * * 1\", \"GH_TOKEN configuré\"]}\n```"
+    },
+    {
+      "id": 11,
+      "subject": "Task 5 : Test d'intégration manuel",
+      "status": "pending",
+      "blockedBy": [9, 10],
+      "description": "**Goal :** Déclencher la routine une fois manuellement et vérifier le comportement de bout en bout.\n\n**Files :** Aucun — vérification de comportement.\n\n**Acceptance Criteria :**\n- [ ] Routine termine sans erreur fatale\n- [ ] Au moins un repo scanné\n- [ ] PR ou Issue créée avec label github-watcher si workflow en échec\n- [ ] Entrée mémoire créée si commentaire de cyrillesondag sur une PR github-watcher\n- [ ] Résumé final affiché\n\n**Verify :** `gh pr list --search \"label:github-watcher\" --json title,url`\n\n```json:metadata\n{\"files\": [], \"verifyCommand\": \"gh pr list --search \\\"label:github-watcher\\\" --json title,url\", \"acceptanceCriteria\": [\"Routine sans erreur fatale\", \"Au moins un repo scanné\", \"PR ou Issue créée si workflow en échec\", \"Mémoire mise à jour si commentaires\"]}\n```"
+    }
+  ],
+  "lastUpdated": "2026-06-15T00:00:00Z"
+}
