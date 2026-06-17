@@ -32,6 +32,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
@@ -39,6 +40,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import coil.request.videoFrameMillis
+import org.mediadownloader.R
 import org.mediadownloader.data.local.db.DownloadEntity
 import org.mediadownloader.data.local.db.DownloadStatus
 
@@ -55,8 +57,10 @@ fun HistoryScreen(viewModel: HistoryViewModel = hiltViewModel()) {
 fun HistoryScreenContent(downloads: List<DownloadEntity>) {
     if (downloads.isEmpty()) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text("No downloads yet.\nShare a video from X to get started.",
-                style = MaterialTheme.typography.bodyLarge)
+            Text(
+                text = stringResource(R.string.history_empty_state_message),
+                style = MaterialTheme.typography.bodyLarge
+            )
         }
         return
     }

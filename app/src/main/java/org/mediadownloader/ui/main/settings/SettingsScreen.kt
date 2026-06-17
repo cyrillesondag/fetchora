@@ -27,10 +27,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -55,28 +52,15 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel<SettingsViewMode
     val cobaltUrl by viewModel.cobaltUrl.collectAsState()
     val folderUri by viewModel.folderUri.collectAsState()
     val serverInfoState by viewModel.serverInfoState.collectAsState()
-
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Settings") },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    titleContentColor = MaterialTheme.colorScheme.onSurface,
-                )
-            )
-        }
-    ) { innerPadding ->
-        SettingsContent(
-            modifier = Modifier.padding(innerPadding),
-            cobaltUrl = cobaltUrl,
-            folderUri = folderUri,
-            serverInfoState = serverInfoState,
-            onFolderSelected = { uri -> viewModel.onFolderSelected(context, uri) },
-            onSaveCobaltUrl = { url -> viewModel.saveCobaltUrl(url) },
-            onTestCobaltUrl = { url -> viewModel.testCobaltUrl(url) }
-        )
-    }
+    SettingsContent(
+        modifier = Modifier.fillMaxSize(),
+        cobaltUrl = cobaltUrl,
+        folderUri = folderUri,
+        serverInfoState = serverInfoState,
+        onFolderSelected = { uri -> viewModel.onFolderSelected(context, uri) },
+        onSaveCobaltUrl = { url -> viewModel.saveCobaltUrl(url) },
+        onTestCobaltUrl = { url -> viewModel.testCobaltUrl(url) }
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
