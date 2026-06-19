@@ -40,6 +40,7 @@ import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
@@ -50,16 +51,19 @@ import androidx.hilt.navigation.compose.hiltViewModel
 fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel<SettingsViewModel>()) {
     val context = LocalContext.current
     val cobaltUrl by viewModel.cobaltUrl.collectAsState()
+    val cobaltApiKey by viewModel.cobaltApiKey.collectAsState()
     val folderUri by viewModel.folderUri.collectAsState()
     val serverInfoState by viewModel.serverInfoState.collectAsState()
     SettingsContent(
         modifier = Modifier.fillMaxSize(),
         cobaltUrl = cobaltUrl,
+        cobaltApiKey = cobaltApiKey,
         folderUri = folderUri,
         serverInfoState = serverInfoState,
         onFolderSelected = { uri -> viewModel.onFolderSelected(context, uri) },
         onSaveCobaltUrl = { url -> viewModel.saveCobaltUrl(url) },
-        onTestCobaltUrl = { url -> viewModel.testCobaltUrl(url) }
+        onTestCobaltUrl = { url -> viewModel.testCobaltUrl(url) },
+        onSaveApiKey = { key -> viewModel.saveApiKey(key) }
     )
 }
 
@@ -68,13 +72,16 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel<SettingsViewMode
 fun SettingsContent(
     modifier: Modifier = Modifier,
     cobaltUrl: String,
+    cobaltApiKey: String?,
     folderUri: String?,
     serverInfoState: ServerInfoState,
     onFolderSelected: (Uri) -> Unit,
     onSaveCobaltUrl: (String) -> Unit,
-    onTestCobaltUrl: (String) -> Unit
+    onTestCobaltUrl: (String) -> Unit,
+    onSaveApiKey: (String) -> Unit
 ) {
     var cobaltUrlDraft by remember(cobaltUrl) { mutableStateOf(cobaltUrl) }
+    var apiKeyDraft by remember(cobaltApiKey) { mutableStateOf(cobaltApiKey ?: "") }
     val scrollState = rememberScrollState()
 
     val folderPicker = rememberLauncherForActivityResult(
@@ -178,6 +185,31 @@ fun SettingsContent(
                             Spacer(Modifier.width(8.dp))
                             Text("Save")
                         }
+                    }
+                }
+
+                OutlinedTextField(
+                    value = apiKeyDraft,
+                    onValueChange = { apiKeyDraft = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text("API Key (optionnel)") },
+                    singleLine = true,
+                    shape = MaterialTheme.shapes.medium,
+                    visualTransformation = PasswordVisualTransformation(),
+                )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Spacer(modifier = Modifier.weight(1f))
+                    Button(
+                        onClick = { onSaveApiKey(apiKeyDraft) },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Icon(Icons.Default.Check, contentDescription = null)
+                        Spacer(Modifier.width(8.dp))
+                        Text("Save")
                     }
                 }
             }
@@ -297,10 +329,12 @@ fun SettingsSection(
 fun SettingsPreview() {
     SettingsContent(
         cobaltUrl = "https://cobalt.example.com",
+        cobaltApiKey = null,
         folderUri = "content://com.android.externalstorage.documents/tree/primary%3ADownload",
         serverInfoState = ServerInfoState.Idle,
         onFolderSelected = {},
         onSaveCobaltUrl = {},
-        onTestCobaltUrl = {}
+        onTestCobaltUrl = {},
+        onSaveApiKey = {}
     )
 }
