@@ -21,6 +21,7 @@ class SettingsViewModel @Inject constructor(
     private val cobaltRepository: CobaltRepository) : ViewModel() {
 
     val cobaltUrl = settings.cobaltUrl.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), "")
+    val cobaltApiKey = settings.cobaltApiKey.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
     val folderUri = settings.folderUri.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
     private val _serverInfoState = MutableStateFlow<ServerInfoState>(ServerInfoState.Idle)
@@ -47,6 +48,10 @@ class SettingsViewModel @Inject constructor(
 
     fun saveCobaltUrl(url: String) {
         viewModelScope.launch { settings.setCobaltUrl(url) }
+    }
+
+    fun saveApiKey(key: String) {
+        viewModelScope.launch { settings.setCobaltApiKey(key) }
     }
 
     fun testCobaltUrl(url: String) {
