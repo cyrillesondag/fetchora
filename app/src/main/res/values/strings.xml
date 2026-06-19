@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Fetchora</string>
+    <string name="history_empty_state_message">No downloads yet.\nShare a video to fetchora and get started.</string>
 </resources>
