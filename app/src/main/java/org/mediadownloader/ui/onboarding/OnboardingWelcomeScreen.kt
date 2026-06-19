@@ -21,6 +21,9 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -57,12 +60,14 @@ fun OnboardingWelcomeScreen(
         ) {
             Text(
                 text = "⬇",
-                style = MaterialTheme.typography.displayMedium
+                style = MaterialTheme.typography.displayMedium,
+                modifier = Modifier.semantics { contentDescription = "" }
             )
             Spacer(Modifier.height(16.dp))
             Text(
                 text = "Bienvenue sur Fetchora",
-                style = MaterialTheme.typography.headlineSmall
+                style = MaterialTheme.typography.headlineSmall,
+                textAlign = TextAlign.Center
             )
             Spacer(Modifier.height(12.dp))
             Text(
