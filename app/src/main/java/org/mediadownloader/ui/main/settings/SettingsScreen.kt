@@ -23,8 +23,8 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
@@ -164,7 +164,10 @@ fun SettingsContent(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     OutlinedButton(
-                        onClick = { cobaltUrlDraft = cobaltUrl; onReloadServerInfo() },
+                        onClick = {
+                            cobaltUrlDraft = cobaltUrl
+                            onReloadServerInfo()
+                        },
                         modifier = Modifier.weight(1f),
                         enabled = isDirty && !isLoading
                     ) {
