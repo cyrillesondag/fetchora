@@ -18,9 +18,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Link
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -61,6 +64,8 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel<SettingsViewMode
         serverInfoState = serverInfoState,
         onFolderSelected = { uri -> viewModel.onFolderSelected(context, uri) },
         onTestAndSave = { url -> viewModel.testAndSave(url) },
+        onReloadServerInfo = { viewModel.reloadServerInfo() },
+        onClearServerInfo = { viewModel.clearServerInfo() },
         onSaveApiKey = { key -> viewModel.saveApiKey(key) }
     )
 }
@@ -75,6 +80,8 @@ fun SettingsContent(
     serverInfoState: ServerInfoState,
     onFolderSelected: (Uri) -> Unit,
     onTestAndSave: (String) -> Unit,
+    onReloadServerInfo: () -> Unit,
+    onClearServerInfo: () -> Unit,
     onSaveApiKey: (String) -> Unit
 ) {
     var cobaltUrlDraft by remember(cobaltUrl) { mutableStateOf(cobaltUrl) }
@@ -136,9 +143,15 @@ fun SettingsContent(
         // Section: API Configuration
         SettingsSection(title = "Service Configuration", icon = Icons.Default.Link) {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                val isDirty = cobaltUrlDraft != cobaltUrl
+                val isLoading = serverInfoState is ServerInfoState.Loading
+
                 OutlinedTextField(
                     value = cobaltUrlDraft,
-                    onValueChange = { cobaltUrlDraft = it },
+                    onValueChange = { newValue ->
+                        cobaltUrlDraft = newValue
+                        if (newValue != cobaltUrl) onClearServerInfo() else onReloadServerInfo()
+                    },
                     modifier = Modifier.fillMaxWidth(),
                     label = { Text("Cobalt Instance URL") },
                     placeholder = { Text("https://...") },
@@ -150,21 +163,23 @@ fun SettingsContent(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    val isLoading = serverInfoState is ServerInfoState.Loading
-
-                    Spacer(modifier = Modifier.weight(1f))
+                    OutlinedButton(
+                        onClick = { cobaltUrlDraft = cobaltUrl; onReloadServerInfo() },
+                        modifier = Modifier.weight(1f),
+                        enabled = isDirty && !isLoading
+                    ) {
+                        Icon(Icons.Default.Refresh, contentDescription = null)
+                        Spacer(Modifier.width(8.dp))
+                        Text("Réinitialiser")
+                    }
                     Button(
                         onClick = { onTestAndSave(cobaltUrlDraft) },
                         modifier = Modifier.weight(1f),
-                        enabled = !isLoading
+                        enabled = isDirty && !isLoading
                     ) {
-                        if (isLoading) {
-                            CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
-                        } else {
-                            Icon(Icons.Default.Check, contentDescription = null)
-                            Spacer(Modifier.width(8.dp))
-                            Text("Test & Save")
-                        }
+                        Icon(Icons.Default.Check, contentDescription = null)
+                        Spacer(Modifier.width(8.dp))
+                        Text("Tester et sauvegarder")
                     }
                 }
 
@@ -241,8 +256,16 @@ fun SettingsContent(
                             )
                         }
 
+                        is ServerInfoState.Loading -> {
+                            Box(
+                                contentAlignment = Alignment.Center,
+                                modifier = Modifier.fillMaxWidth().padding(8.dp)
+                            ) {
+                                CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                            }
+                        }
+
                         else -> {
-                            // Empty view for Loading and Idle
                             Text(
                                 text = "No information available",
                                 style = MaterialTheme.typography.bodyMedium,
@@ -314,6 +337,8 @@ fun SettingsPreview() {
         serverInfoState = ServerInfoState.Idle,
         onFolderSelected = {},
         onTestAndSave = {},
+        onReloadServerInfo = {},
+        onClearServerInfo = {},
         onSaveApiKey = {}
     )
 }
