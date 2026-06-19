@@ -21,6 +21,7 @@ class SettingsViewModel @Inject constructor(
     private val cobaltRepository: CobaltRepository
 ) : ViewModel() {
 
+    // Eagerly: WhileSubscribed stops collecting when there are no UI collectors, breaking unit tests.
     val cobaltUrl = settings.cobaltUrl.stateIn(viewModelScope, SharingStarted.Eagerly, "")
     val cobaltApiKey = settings.cobaltApiKey.stateIn(viewModelScope, SharingStarted.Eagerly, null)
     val folderUri = settings.folderUri.stateIn(viewModelScope, SharingStarted.Eagerly, null)
