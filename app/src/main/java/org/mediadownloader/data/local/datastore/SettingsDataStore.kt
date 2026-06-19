@@ -1,6 +1,8 @@
 package org.mediadownloader.data.local.datastore
 
 import android.content.Context
+import android.net.Uri
+import android.os.Environment
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -28,7 +30,8 @@ class SettingsDataStore @Inject constructor(@ApplicationContext private val cont
     }
 
     val folderUri: Flow<String?> = context.dataStore.data.map { prefs ->
-        prefs[keyFolderUri]
+        prefs[keyFolderUri] ?: context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
+            ?.let { Uri.fromFile(it).toString() }
     }
 
     val cobaltApiKey: Flow<String?> = context.dataStore.data.map { prefs ->

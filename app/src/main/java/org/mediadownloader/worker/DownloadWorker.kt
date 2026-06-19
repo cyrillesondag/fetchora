@@ -84,10 +84,14 @@ class DownloadWorker @AssistedInject constructor(
             var downloaded = 0L
 
             val folderDocUri = folderUri.toUri()
-            val docFile = DocumentFile
-                .fromTreeUri(applicationContext, folderDocUri)
-                ?.createFile("video/mp4", fileName)
-                ?: throw IllegalStateException("Could not create file in target folder")
+            val docFile = if (folderDocUri.scheme == "file") {
+                val dir = java.io.File(folderDocUri.path!!)
+                dir.mkdirs()
+                DocumentFile.fromFile(dir).createFile("video/mp4", fileName)
+            } else {
+                DocumentFile.fromTreeUri(applicationContext, folderDocUri)
+                    ?.createFile("video/mp4", fileName)
+            } ?: throw IllegalStateException("Could not create file in target folder")
             
             outputDocumentFile = docFile
             val outputUri = docFile.uri
