@@ -21,6 +21,7 @@ class SettingsDataStore @Inject constructor(@ApplicationContext private val cont
 
     private val keyCobaltUrl = stringPreferencesKey("cobalt_url")
     private val keyFolderUri = stringPreferencesKey("folder_uri")
+    private val keyCobaltApiKey = stringPreferencesKey("cobalt_api_key")
 
     val cobaltUrl: Flow<String> = context.dataStore.data.map { prefs ->
         prefs[keyCobaltUrl]?.takeIf { it.isNotBlank() } ?: DEFAULT_COBALT_URL
@@ -28,6 +29,10 @@ class SettingsDataStore @Inject constructor(@ApplicationContext private val cont
 
     val folderUri: Flow<String?> = context.dataStore.data.map { prefs ->
         prefs[keyFolderUri]
+    }
+
+    val cobaltApiKey: Flow<String?> = context.dataStore.data.map { prefs ->
+        prefs[keyCobaltApiKey]?.takeIf { it.isNotBlank() }
     }
 
     suspend fun setCobaltUrl(url: String) {
@@ -39,5 +44,12 @@ class SettingsDataStore @Inject constructor(@ApplicationContext private val cont
 
     suspend fun setFolderUri(uri: String) {
         context.dataStore.edit { it[keyFolderUri] = uri }
+    }
+
+    suspend fun setCobaltApiKey(key: String) {
+        context.dataStore.edit { prefs ->
+            if (key.isBlank()) prefs.remove(keyCobaltApiKey)
+            else prefs[keyCobaltApiKey] = key
+        }
     }
 }

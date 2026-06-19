@@ -61,6 +61,19 @@ class SettingsDataStoreTest {
         testDataStore.edit { it[keyFolderUri] = uri }
     }
 
+    private suspend fun getCobaltApiKey(): String? {
+        val keyCobaltApiKey = stringPreferencesKey("cobalt_api_key")
+        return testDataStore.data.map { prefs -> prefs[keyCobaltApiKey] }.first()
+    }
+
+    private suspend fun setCobaltApiKey(key: String) {
+        val keyCobaltApiKey = stringPreferencesKey("cobalt_api_key")
+        testDataStore.edit { prefs ->
+            if (key.isBlank()) prefs.remove(keyCobaltApiKey)
+            else prefs[keyCobaltApiKey] = key
+        }
+    }
+
     @Test
     fun `cobaltUrl default is api cobalt tools`() = runTest {
         assertEquals("https://api.cobalt.tools/", getCobaltUrl())
@@ -90,5 +103,23 @@ class SettingsDataStoreTest {
             "content://com.android.externalstorage.documents/tree/primary%3ADownloads",
             getFolderUri()
         )
+    }
+
+    @Test
+    fun `cobaltApiKey default is null`() = runTest {
+        assertNull(getCobaltApiKey())
+    }
+
+    @Test
+    fun `saved cobaltApiKey is retrieved`() = runTest {
+        setCobaltApiKey("my-api-key")
+        assertEquals("my-api-key", getCobaltApiKey())
+    }
+
+    @Test
+    fun `blank cobaltApiKey removes the key`() = runTest {
+        setCobaltApiKey("my-api-key")
+        setCobaltApiKey("")
+        assertNull(getCobaltApiKey())
     }
 }
