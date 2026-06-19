@@ -30,13 +30,7 @@ class SettingsViewModel @Inject constructor(
     val serverInfoState = _serverInfoState.asStateFlow()
 
     init {
-        viewModelScope.launch {
-            val url = settings.cobaltUrl.first()
-            _serverInfoState.value = cobaltRepository.getInfo(url).fold(
-                onSuccess = { ServerInfoState.Success(it) },
-                onFailure = { ServerInfoState.Error(it.message ?: "Connection failed") }
-            )
-        }
+        reloadServerInfo()
     }
 
     fun onFolderSelected(context: Context, uri: Uri) {
