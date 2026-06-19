@@ -50,8 +50,10 @@ fun OnboardingUrlScreen(
     val context = LocalContext.current
     val serverInfoState by settingsViewModel.serverInfoState.collectAsState()
     var urlDraft by rememberSaveable { mutableStateOf(SettingsDataStore.DEFAULT_COBALT_URL) }
-    var pendingContinue by remember { mutableStateOf(false) }
+    var pendingContinue by rememberSaveable { mutableStateOf(false) }
     val isLoading = serverInfoState is ServerInfoState.Loading
+
+    LaunchedEffect(Unit) { settingsViewModel.clearServerInfo() }
 
     // Après testAndSave, si succès et qu'on attendait une confirmation, on avance
     LaunchedEffect(serverInfoState) {
