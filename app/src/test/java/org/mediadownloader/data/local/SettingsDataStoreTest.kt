@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.test.core.app.ApplicationProvider
 import org.mediadownloader.data.local.datastore.SettingsDataStore
 import kotlinx.coroutines.flow.Flow
@@ -121,5 +122,29 @@ class SettingsDataStoreTest {
         setCobaltApiKey("my-api-key")
         setCobaltApiKey("")
         assertNull(getCobaltApiKey())
+    }
+
+    private suspend fun getOnboardingDone(): Boolean {
+        val keyOnboardingDone = booleanPreferencesKey("onboarding_done")
+        return testDataStore.data.map { prefs ->
+            prefs[keyOnboardingDone] ?: false
+        }.first()
+    }
+
+    private suspend fun setOnboardingDone() {
+        val keyOnboardingDone = booleanPreferencesKey("onboarding_done")
+        testDataStore.edit { it[keyOnboardingDone] = true }
+    }
+
+    @Test
+    fun `onboardingDone default is false`() = runTest {
+        assertFalse(getOnboardingDone())
+    }
+
+    @Test
+    fun `setOnboardingDone persists true`() = runTest {
+        assertFalse(getOnboardingDone())
+        setOnboardingDone()
+        assertTrue(getOnboardingDone())
     }
 }

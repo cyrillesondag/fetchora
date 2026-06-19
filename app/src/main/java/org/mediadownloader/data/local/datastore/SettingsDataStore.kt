@@ -5,6 +5,7 @@ import android.net.Uri
 import android.os.Environment
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
@@ -24,6 +25,7 @@ class SettingsDataStore @Inject constructor(@ApplicationContext private val cont
     private val keyCobaltUrl = stringPreferencesKey("cobalt_url")
     private val keyFolderUri = stringPreferencesKey("folder_uri")
     private val keyCobaltApiKey = stringPreferencesKey("cobalt_api_key")
+    private val keyOnboardingDone = booleanPreferencesKey("onboarding_done")
 
     val cobaltUrl: Flow<String> = context.dataStore.data.map { prefs ->
         prefs[keyCobaltUrl]?.takeIf { it.isNotBlank() } ?: DEFAULT_COBALT_URL
@@ -36,6 +38,10 @@ class SettingsDataStore @Inject constructor(@ApplicationContext private val cont
 
     val cobaltApiKey: Flow<String?> = context.dataStore.data.map { prefs ->
         prefs[keyCobaltApiKey]?.takeIf { it.isNotBlank() }
+    }
+
+    val onboardingDone: Flow<Boolean> = context.dataStore.data.map { prefs ->
+        prefs[keyOnboardingDone] ?: false
     }
 
     suspend fun setCobaltUrl(url: String) {
@@ -54,5 +60,9 @@ class SettingsDataStore @Inject constructor(@ApplicationContext private val cont
             if (key.isBlank()) prefs.remove(keyCobaltApiKey)
             else prefs[keyCobaltApiKey] = key
         }
+    }
+
+    suspend fun setOnboardingDone() {
+        context.dataStore.edit { it[keyOnboardingDone] = true }
     }
 }
