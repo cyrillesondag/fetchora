@@ -28,6 +28,7 @@ class HostSettingInterceptorTest {
         server.start()
         settings = mockk()
         every { settings.cobaltUrl } returns flowOf(server.url("/").toString())
+        every { settings.cobaltApiKey } returns flowOf(null)
         client = OkHttpClient.Builder()
             .addInterceptor(HostSettingInterceptor(settings))
             .build()
