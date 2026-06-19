@@ -24,7 +24,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -61,8 +60,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel<SettingsViewMode
         folderUri = folderUri,
         serverInfoState = serverInfoState,
         onFolderSelected = { uri -> viewModel.onFolderSelected(context, uri) },
-        onSaveCobaltUrl = { url -> viewModel.saveCobaltUrl(url) },
-        onTestCobaltUrl = { url -> viewModel.testCobaltUrl(url) },
+        onTestAndSave = { url -> viewModel.testAndSave(url) },
         onSaveApiKey = { key -> viewModel.saveApiKey(key) }
     )
 }
@@ -76,8 +74,7 @@ fun SettingsContent(
     folderUri: String?,
     serverInfoState: ServerInfoState,
     onFolderSelected: (Uri) -> Unit,
-    onSaveCobaltUrl: (String) -> Unit,
-    onTestCobaltUrl: (String) -> Unit,
+    onTestAndSave: (String) -> Unit,
     onSaveApiKey: (String) -> Unit
 ) {
     var cobaltUrlDraft by remember(cobaltUrl) { mutableStateOf(cobaltUrl) }
@@ -153,37 +150,20 @@ fun SettingsContent(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    val isSuccess = serverInfoState is ServerInfoState.Success
                     val isLoading = serverInfoState is ServerInfoState.Loading
 
-                    if (isSuccess) {
-                        OutlinedButton(
-                            onClick = { onTestCobaltUrl(cobaltUrlDraft) },
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Text("Test Connection")
-                        }
-                    } else {
-                        Button(
-                            onClick = { onTestCobaltUrl(cobaltUrlDraft) },
-                            modifier = Modifier.weight(1f),
-                            enabled = !isLoading
-                        ) {
-                            Text("Test Connection")
-                        }
-                    }
-
+                    Spacer(modifier = Modifier.weight(1f))
                     Button(
-                        onClick = { onSaveCobaltUrl(cobaltUrlDraft) },
+                        onClick = { onTestAndSave(cobaltUrlDraft) },
                         modifier = Modifier.weight(1f),
-                        enabled = isSuccess
+                        enabled = !isLoading
                     ) {
                         if (isLoading) {
                             CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
                         } else {
                             Icon(Icons.Default.Check, contentDescription = null)
                             Spacer(Modifier.width(8.dp))
-                            Text("Save")
+                            Text("Test & Save")
                         }
                     }
                 }
@@ -333,8 +313,7 @@ fun SettingsPreview() {
         folderUri = "content://com.android.externalstorage.documents/tree/primary%3ADownload",
         serverInfoState = ServerInfoState.Idle,
         onFolderSelected = {},
-        onSaveCobaltUrl = {},
-        onTestCobaltUrl = {},
+        onTestAndSave = {},
         onSaveApiKey = {}
     )
 }

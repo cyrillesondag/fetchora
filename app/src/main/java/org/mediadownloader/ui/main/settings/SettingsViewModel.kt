@@ -18,11 +18,12 @@ import javax.inject.Inject
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val settings: SettingsDataStore,
-    private val cobaltRepository: CobaltRepository) : ViewModel() {
+    private val cobaltRepository: CobaltRepository
+) : ViewModel() {
 
-    val cobaltUrl = settings.cobaltUrl.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), "")
-    val cobaltApiKey = settings.cobaltApiKey.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
-    val folderUri = settings.folderUri.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+    val cobaltUrl = settings.cobaltUrl.stateIn(viewModelScope, SharingStarted.Eagerly, "")
+    val cobaltApiKey = settings.cobaltApiKey.stateIn(viewModelScope, SharingStarted.Eagerly, null)
+    val folderUri = settings.folderUri.stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
     private val _serverInfoState = MutableStateFlow<ServerInfoState>(ServerInfoState.Idle)
     val serverInfoState = _serverInfoState.asStateFlow()
@@ -46,21 +47,36 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch { settings.setFolderUri(uri.toString()) }
     }
 
-    fun saveCobaltUrl(url: String) {
-        viewModelScope.launch { settings.setCobaltUrl(url) }
-    }
-
     fun saveApiKey(key: String) {
         viewModelScope.launch { settings.setCobaltApiKey(key) }
     }
 
-    fun testCobaltUrl(url: String) {
+    fun clearServerInfo() {
+        _serverInfoState.value = ServerInfoState.Idle
+    }
+
+    fun reloadServerInfo() {
         viewModelScope.launch {
             _serverInfoState.value = ServerInfoState.Loading
-            val result = cobaltRepository.getInfo(url)
-            _serverInfoState.value = result.fold(
+            val url = settings.cobaltUrl.first()
+            _serverInfoState.value = cobaltRepository.getInfo(url).fold(
                 onSuccess = { ServerInfoState.Success(it) },
                 onFailure = { ServerInfoState.Error(it.message ?: "Connection failed") }
+            )
+        }
+    }
+
+    fun testAndSave(url: String) {
+        viewModelScope.launch {
+            _serverInfoState.value = ServerInfoState.Loading
+            cobaltRepository.getInfo(url).fold(
+                onSuccess = {
+                    settings.setCobaltUrl(url)
+                    _serverInfoState.value = ServerInfoState.Success(it)
+                },
+                onFailure = {
+                    _serverInfoState.value = ServerInfoState.Error(it.message ?: "Connection failed")
+                }
             )
         }
     }
