@@ -13,17 +13,22 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
 import org.mediadownloader.ui.main.history.HistoryScreen
 import org.mediadownloader.ui.main.settings.SettingsScreen
+import org.mediadownloader.ui.onboarding.OnboardingUrlScreen
+import org.mediadownloader.ui.onboarding.OnboardingWelcomeScreen
 import org.mediadownloader.ui.theme.FetchoraTheme
 
 @AndroidEntryPoint
@@ -35,29 +40,64 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-private fun MainScreen() {
+private fun MainScreen(mainViewModel: MainViewModel = hiltViewModel()) {
+    val onboardingDone by mainViewModel.onboardingDone.collectAsState()
+
+    // Attendre la lecture du DataStore avant de composer le NavHost
+    if (onboardingDone == null) return
+
     val navController = rememberNavController()
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+    val showBottomBar = currentRoute?.startsWith("onboarding") != true
+
     val tabs = listOf("history" to Icons.Default.History, "settings" to Icons.Default.Settings)
     var selectedTab by remember { mutableIntStateOf(0) }
 
+    val startDestination = if (onboardingDone == true) "history" else "onboarding/welcome"
+
     Scaffold(
         bottomBar = {
-            NavigationBar {
-                tabs.forEachIndexed { index, (label, icon) ->
-                    NavigationBarItem(
-                        selected = selectedTab == index,
-                        onClick = {
-                            selectedTab = index
-                            navController.navigate(label) { launchSingleTop = true }
-                        },
-                        icon = { Icon(icon, contentDescription = label) },
-                        label = { Text(label.replaceFirstChar { it.uppercaseChar() }) }
-                    )
+            if (showBottomBar) {
+                NavigationBar {
+                    tabs.forEachIndexed { index, (label, icon) ->
+                        NavigationBarItem(
+                            selected = selectedTab == index,
+                            onClick = {
+                                selectedTab = index
+                                navController.navigate(label) { launchSingleTop = true }
+                            },
+                            icon = { Icon(icon, contentDescription = label) },
+                            label = { Text(label.replaceFirstChar { it.uppercaseChar() }) }
+                        )
+                    }
                 }
             }
         }
     ) { padding ->
-        NavHost(navController, startDestination = "history", modifier = Modifier.padding(padding)) {
+        NavHost(
+            navController = navController,
+            startDestination = startDestination,
+            modifier = Modifier.padding(padding)
+        ) {
+            composable("onboarding/welcome") {
+                OnboardingWelcomeScreen(
+                    onNext = { navController.navigate("onboarding/url") },
+                    onSkip = {
+                        mainViewModel.completeOnboarding()
+                        navController.navigate("history") { popUpTo(0) { inclusive = true } }
+                    }
+                )
+            }
+            composable("onboarding/url") {
+                OnboardingUrlScreen(
+                    onBack = { navController.popBackStack() },
+                    onComplete = { mainViewModel.completeOnboarding() },
+                    onNavigateToApp = {
+                        navController.navigate("history") { popUpTo(0) { inclusive = true } }
+                    }
+                )
+            }
             composable("history")  { HistoryScreen() }
             composable("settings") { SettingsScreen() }
         }
