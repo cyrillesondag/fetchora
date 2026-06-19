@@ -21,7 +21,7 @@ Ce comportement est peu clair : le bouton Save reste actif si l'URL a été test
 |-----------|---------|--------------|
 | URL inchangée (`draft == sauvegardée`) | "Tester et sauvegarder" désactivé · "Réinitialiser" désactivé | Infos du serveur sauvegardé |
 | URL modifiée (`draft != sauvegardée`) | Les deux actifs | Vide ("No information available") |
-| En cours (loading) | Les deux désactivés · spinner dans "Tester et sauvegarder" | Vide |
+| En cours (loading) | Les deux désactivés | Spinner centré |
 | Succès | Boutons désactivés (draft réinitialisé = URL sauvegardée) | Nouvelles infos serveur |
 | Échec | Les deux actifs | Message d'erreur |
 
@@ -54,7 +54,8 @@ Dans `SettingsContent` :
 - Remplacement des deux anciens boutons par :
   - Bouton "Réinitialiser" (`OutlinedButton`, `enabled = isDirty && !isLoading`) : `cobaltUrlDraft = cobaltUrl; onReloadServerInfo()`
   - Bouton "Tester et sauvegarder" (`Button`, `enabled = isDirty && !isLoading`) : `onTestAndSave(cobaltUrlDraft)`
-- Le spinner s'affiche dans le bouton "Tester et sauvegarder" quand `isLoading`
+- Le bouton "Tester et sauvegarder" est simplement désactivé pendant le chargement (pas de spinner dans le bouton)
+- La section Info affiche un `CircularProgressIndicator` centré quand `isLoading`
 
 Nouveaux callbacks dans `SettingsContent` :
 - `onTestAndSave: (String) -> Unit`
