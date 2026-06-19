@@ -22,7 +22,7 @@ class HostSettingInterceptor(
 
         // Get the latest URL from DataStore synchronously on the network thread
         val cobaltUrlString = runBlocking { settings.cobaltUrl.first() }
-        val cobaltHttpUrl = cobaltUrlString.toHttpUrlOrNull() 
+        val cobaltHttpUrl = cobaltUrlString.toHttpUrlOrNull()
             ?: return chain.proceed(originalRequest)
 
         // Build the new URL by replacing the scheme, host and port from settings
@@ -32,10 +32,15 @@ class HostSettingInterceptor(
             .port(cobaltHttpUrl.port)
             .build()
 
-        val newRequest = originalRequest.newBuilder()
+        val requestBuilder = originalRequest.newBuilder()
             .url(newUrl)
-            .build()
 
-        return chain.proceed(newRequest)
+        // Add Authorization header if API key is configured
+        val apiKey = runBlocking { settings.cobaltApiKey.first() }
+        if (!apiKey.isNullOrBlank()) {
+            requestBuilder.header("Authorization", "Api-Key $apiKey")
+        }
+
+        return chain.proceed(requestBuilder.build())
     }
 }
