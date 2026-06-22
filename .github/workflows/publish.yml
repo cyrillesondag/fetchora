@@ -45,7 +45,7 @@ jobs:
         run: ./gradlew :app:bundleRelease
 
       - name: Upload to Play Store
-        uses: r0adkll/upload-google-play@v1.1.3
+        uses: r0adkll/upload-google-play@v1.1.5
         with:
           serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_JSON_KEY }}
           packageName: cyrillesondag.fetchora
